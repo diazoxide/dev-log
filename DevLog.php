@@ -40,7 +40,6 @@ final class DevLog {
 		register_shutdown_function( function () {
 			self::$_logs['statement']['memory_usage'] = memory_get_usage( true );
 			self::$_logs['statement']['trace']        = debug_backtrace();
-			self::$_logs['statement']['response']     = [ 'headers' => $http_response_header ];
 
 			self::info( 'Page end.' );
 			file_put_contents( self::getLogFilePath(), json_encode( self::$_logs ) );

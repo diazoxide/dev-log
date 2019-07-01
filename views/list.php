@@ -18,6 +18,7 @@ function mem_usage( $mem_usage ) {
     <tr>
         <th>ID</th>
         <th>URI</th>
+        <th>Method</th>
         <th>Time</th>
         <th>Memory</th>
         <th>Messages</th>
@@ -28,8 +29,9 @@ function mem_usage( $mem_usage ) {
 	<?php /** @var Object[] $logs */
 	foreach ( $logs as $id => $log ): ?>
         <tr>
-            <td><?php echo $id; ?></td>
-            <td><a href="/dev-log/view/<?php echo $id; ?>"><?php echo $log->statement->server->REQUEST_URI; ?></td>
+            <td><a href="/dlog/view/<?php echo $id; ?>"><?php echo $id; ?></a></td>
+            <td><?php echo $log->statement->server->REQUEST_URI; ?></td>
+            <td><?php echo $log->statement->server->REQUEST_METHOD; ?></td>
             <td><?php echo $log->statement->time; ?></td>
             <td><?php echo mem_usage( $log->statement->memory_usage ); ?></td>
             <td><?php echo count( $log->messages ); ?></td>

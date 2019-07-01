@@ -38,16 +38,16 @@ class DevLogController {
 	 */
 	public function registerRoutes() {
 
-		$route = strtok( $_SERVER["REQUEST_URI"], '?' );
+		$route = strtok( isset($_SERVER["REQUEST_URI"]) ? $_SERVER["REQUEST_URI"] : '', '?' );
 
-		if ( trim( $route, '/' ) == 'dev-log' ) {
+		if ( trim( $route, '/' ) == 'dlog' ) {
 
 			$this->actionDefault();
 
 			die();
 		}
 
-		if ( preg_match( '/^\/dev-log\/view\/(?<name>.*)?$/', $route, $matches ) ) {
+		if ( preg_match( '/^\/dlog\/view\/(?<name>.*)?$/', $route, $matches ) ) {
 
 			$this->actionView( $matches['name'] );
 
