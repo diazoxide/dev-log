@@ -4,7 +4,7 @@
  *
  * */
 
-final class DevLog {
+class DevLog {
 
 	private static $_log_directory;
 
