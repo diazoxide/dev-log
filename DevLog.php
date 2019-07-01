@@ -22,7 +22,7 @@ final class DevLog {
 			self::$_logs['statement'] = [
 				'time'     => time(),
 				'php_info' => self::getPhpInfo(),
-				'request'  => [ 'headers' => getallheaders() ],
+				'request'  => [ 'headers' => function_exists( 'getallheaders' ) ? getallheaders() : [] ],
 				'server'   => $_SERVER,
 				'post'     => $_POST,
 				'get'      => $_GET,
