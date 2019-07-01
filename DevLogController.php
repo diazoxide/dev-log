@@ -1,4 +1,5 @@
 <?php
+
 namespace DevLog;
 
 use Requests_Exception_HTTP_500;
@@ -10,14 +11,19 @@ class DevLogController {
 
 	public $viewsDirectory = null;
 
-	private $_layout_already_set = false;
 
 	/**
 	 * DevLogController constructor.
+	 *
+	 * @param $ip_addresses
+	 *
 	 * @throws Requests_Exception_HTTP_500
 	 */
-	public function __construct() {
+	public function __construct($ip_addresses) {
 
+		if ( ! $this->ipAddressValidation($ip_addresses) ) {
+			return true;
+		}
 
 		if ( $this->viewsDirectory == null ) {
 			$this->viewsDirectory = dirname( __FILE__ ) . '/views';
@@ -33,6 +39,13 @@ class DevLogController {
 		return $this->registerRoutes();
 	}
 
+	private function ipAddressValidation($ip_addresses) {
+		if ( in_array( '*', $ip_addresses ) || in_array( DevLogHelper::getUserIpAddressFromServer( $_SERVER ), $ip_addresses ) ) {
+			return true;
+		}
+
+		return false;
+	}
 
 	/**
 	 * @return bool
@@ -40,7 +53,7 @@ class DevLogController {
 	 */
 	public function registerRoutes() {
 
-		$route = strtok( isset($_SERVER["REQUEST_URI"]) ? $_SERVER["REQUEST_URI"] : '', '?' );
+		$route = strtok( isset( $_SERVER["REQUEST_URI"] ) ? $_SERVER["REQUEST_URI"] : '', '?' );
 
 		if ( trim( $route, '/' ) == 'dlog' ) {
 
