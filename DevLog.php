@@ -1,7 +1,9 @@
 <?php
 
+namespace DevLog;
 /*
- *
+ * Dev log
+ * Simple and Powerful debugging tool
  * */
 
 class DevLog {
@@ -12,6 +14,8 @@ class DevLog {
 
 	private static $_logs;
 
+	private static $_logs_hash;
+
 	/**
 	 * Register logger
 	 */
@@ -20,17 +24,24 @@ class DevLog {
 
 		if ( ! isset( self::$_logs['statement'] ) ) {
 			self::$_logs['statement'] = [
-				'time'     => time(),
-				'php_info' => self::getPhpInfo(),
-				'request'  => [ 'headers' => function_exists( 'getallheaders' ) ? getallheaders() : [] ],
-				'server'   => $_SERVER,
-				'post'     => $_POST,
-				'get'      => $_GET,
-				'trace'    => []
+				'time'       => time(),
+				'start_time' => microtime( true ),
+				'php_info'   => self::getPhpInfo(),
+				'request'    => [ 'headers' => function_exists( 'getallheaders' ) ? getallheaders() : [] ],
+				'server'     => $_SERVER,
+				'post'       => $_POST,
+				'get'        => $_GET,
+				'response'   => [ 'headers' => headers_list() ],
+				'trace'      => []
 			];
 		}
 
 		self::info( 'Page start.' );
+	}
+
+
+	private static function registerInlineDebugger() {
+//		echo '<a href="/dev-log/view/' . self::getLogHash() . '"></a>';
 	}
 
 	/**
@@ -39,10 +50,15 @@ class DevLog {
 	public static function registerShutDown() {
 		register_shutdown_function( function () {
 			self::$_logs['statement']['memory_usage'] = memory_get_usage( true );
+			self::$_logs['statement']['load_time']    = microtime( true ) - self::$_logs['statement']['start_time'];
 			self::$_logs['statement']['trace']        = debug_backtrace();
-
 			self::info( 'Page end.' );
 			file_put_contents( self::getLogFilePath(), json_encode( self::$_logs ) );
+
+			if ( ! DevLogHelper::isXHRFromServer( $_SERVER ) ) {
+				self::registerInlineDebugger();
+			}
+
 		} );
 	}
 
@@ -79,14 +95,26 @@ class DevLog {
 		return self::$_log_directory;
 	}
 
+	/**
+	 * @return string
+	 */
 	public static function getLogFilePath() {
 		if ( ! isset( self::$_log_file_path ) ) {
-			$file_name            = md5( microtime() . rand() );
-			self::$_log_file_path = self::getLogDirectory() . "/" . $file_name;
-
+			self::$_log_file_path = self::getLogDirectory() . "/" . self::getLogHash();
 		}
 
 		return self::$_log_file_path;
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getLogHash() {
+		if ( ! isset( self::$_logs_hash ) ) {
+			self::$_logs_hash = md5( microtime() . rand() );
+		}
+
+		return self::$_logs_hash;
 	}
 
 	/**

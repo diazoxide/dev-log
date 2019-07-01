@@ -10,6 +10,7 @@
             <a href="?tab=messages" class="list-group-item list-group-item-action">Messages</a>
             <a href="?tab=trace" class="list-group-item list-group-item-action">Trace</a>
             <a href="?tab=request" class="list-group-item list-group-item-action">Request</a>
+            <a href="?tab=response" class="list-group-item list-group-item-action">Response</a>
         </div>
 
 
@@ -35,6 +36,11 @@
 			case "request":
 				$this->render( '_request', [
 					'request' => $log->statement->request
+				] );
+				break;
+			case "response":
+				$this->render( '_response', [
+					'response' => $log->statement->response
 				] );
 				break;
 			case "get":

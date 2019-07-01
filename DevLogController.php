@@ -1,5 +1,7 @@
 <?php
+namespace DevLog;
 
+use Requests_Exception_HTTP_500;
 
 class DevLogController {
 

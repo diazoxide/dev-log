@@ -24,7 +24,7 @@
             <td><?php echo $id + 1; ?></td>
             <td><?php echo $message->type; ?></td>
             <td><?php echo $message->category; ?></td>
-            <td><?php echo $message->message; ?></td>
+            <td><pre><?php echo $message->message; ?></pre></td>
             <td><?php echo $message->time; ?></td>
         </tr>
 
