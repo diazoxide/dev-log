@@ -19,9 +19,9 @@ class DevLogController {
 	 *
 	 * @throws Requests_Exception_HTTP_500
 	 */
-	public function __construct($ip_addresses) {
+	public function __construct() {
 
-		if ( ! $this->ipAddressValidation($ip_addresses) ) {
+		if ( ! $this->ipAddressValidation( DEV_LOG_IP_ADDRESSES ) ) {
 			return true;
 		}
 
@@ -39,7 +39,7 @@ class DevLogController {
 		return $this->registerRoutes();
 	}
 
-	private function ipAddressValidation($ip_addresses) {
+	private function ipAddressValidation( $ip_addresses ) {
 		if ( in_array( '*', $ip_addresses ) || in_array( DevLogHelper::getUserIpAddressFromServer( $_SERVER ), $ip_addresses ) ) {
 			return true;
 		}
@@ -55,16 +55,23 @@ class DevLogController {
 
 		$route = strtok( isset( $_SERVER["REQUEST_URI"] ) ? $_SERVER["REQUEST_URI"] : '', '?' );
 
-		if ( trim( $route, '/' ) == 'dlog' ) {
+		if ( trim( $route, '/' ) == DEV_LOG_PATH ) {
 
 			$this->actionDefault();
 
 			die();
 		}
 
-		if ( preg_match( '/^\/dlog\/view\/(?<name>.*)?$/', $route, $matches ) ) {
+		if ( preg_match( '/^\/'.DEV_LOG_PATH.'\/view\/(?<name>.*)?$/', $route, $matches ) ) {
 
 			$this->actionView( $matches['name'] );
+
+			die();
+		}
+
+		if ( preg_match( '/^\/'.DEV_LOG_PATH.'\/inline\/(?<name>.*)?$/', $route, $matches ) ) {
+
+			$this->actionInline( $matches['name'] );
 
 			die();
 		}
@@ -93,10 +100,24 @@ class DevLogController {
 		], false );
 	}
 
+	/**
+	 * @throws Requests_Exception_HTTP_500
+	 */
+	public function actionInline( $name ) {
+
+		$this->layout = $this->viewsDirectory . '/layout-clean.php';
+
+		$this->render( 'inline', [
+			'log' => DevLog::getLog( $name )
+		], false );
+	}
+
 
 	/**
 	 * @param $file
 	 * @param array $params
+	 *
+	 * @param bool $clean
 	 *
 	 * @return bool
 	 * @throws Requests_Exception_HTTP_500

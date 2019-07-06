@@ -2,17 +2,21 @@
 
     <div class="col-sm-3">
 
-        <div class="list-group">
-            <a href="?tab=configuration" class="list-group-item list-group-item-action active">Configuration</a>
-            <a href="?tab=server" class="list-group-item list-group-item-action">Server</a>
-            <a href="?tab=get" class="list-group-item list-group-item-action">GET</a>
-            <a href="?tab=post" class="list-group-item list-group-item-action">POST</a>
-            <a href="?tab=messages" class="list-group-item list-group-item-action">Messages</a>
-            <a href="?tab=trace" class="list-group-item list-group-item-action">Trace</a>
-            <a href="?tab=request" class="list-group-item list-group-item-action">Request</a>
-            <a href="?tab=response" class="list-group-item list-group-item-action">Response</a>
-        </div>
 
+		<?php
+		echo \DevLog\DevLogHelper::getMenu( [
+
+			[ 'label' => 'Messages', 'url' => '?tab=messages' ],
+			[ 'label' => 'Configuration', 'url' => '?tab=configuration' ],
+			[ 'label' => 'Server', 'url' => '?tab=server' ],
+			[ 'label' => 'GET', 'url' => '?tab=get' ],
+			[ 'label' => 'POST', 'url' => '?tab=post' ],
+			[ 'label' => 'Trace', 'url' => '?tab=trace' ],
+			[ 'label' => 'Request', 'url' => '?tab=request' ],
+			[ 'label' => 'Response', 'url' => '?tab=Response' ],
+
+		], [ 'items' => [ 'class' => 'list-group-item list-group-item-action' ] ] )
+		?>
 
     </div>
 
@@ -20,7 +24,7 @@
     <div class="col-sm-9">
 
 		<?php
-		$tab = isset( $_GET['tab'] ) ? $_GET['tab'] : "configuration";
+		$tab = isset( $_GET['tab'] ) ? $_GET['tab'] : "messages";
 
 		switch ( $tab ) {
 			case "messages":
@@ -58,9 +62,14 @@
 					'trace' => $log->statement->trace
 				] );
 				break;
-			default:
+			case "configuration":
 				$this->render( '_configuration', [
 					'configuration' => $log->statement->php_info
+				] );
+				break;
+			default:
+				$this->render( '_messages', [
+					'messages' => $log->messages
 				] );
 				break;
 		}

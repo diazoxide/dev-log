@@ -15,9 +15,13 @@
 	foreach ( $messages as $id => $message ): ?>
 		<?php
 		$classes = [
+			'message'    => "table-dark",
 			'info'    => "table-success",
 			'warning' => "table-warning",
 			'error'   => "table-danger",
+			'note'   => "table-info",
+			'secondary'   => "table-secondary",
+			'important'   => "table-primary",
 		];
 		?>
         <tr class="<?php echo isset( $classes[ $message->type ] ) ? $classes[ $message->type ] : 'table-primary'; ?>">
