@@ -10,6 +10,7 @@ use DevLog\DevLogHelper;
         <th>URI</th>
         <th>IP</th>
         <th>Method</th>
+        <th>Status</th>
         <th>XHR</th>
         <th>Time</th>
         <th>Memory</th>
@@ -32,6 +33,7 @@ use DevLog\DevLogHelper;
             <td><span title="<?php echo $url; ?>"><?php echo DevLogHelper::trimString( $url ); ?></span></td>
             <td><?php echo DevLogHelper::getUserIpAddressFromServer( $log->statement->server ); ?></td>
             <td><?php echo $log->statement->server->REQUEST_METHOD; ?></td>
+            <td><?php echo DevLogHelper::getHttpStatusBadge($log->statement->status); ?></td>
             <td><?php echo DevLogHelper::isXHRFromServer( $log->statement->server ) ? "Yes" : "No"; ?></td>
             <td><?php echo date('Y-m-d H:i:s', $log->statement->time); ?></td>
             <td><?php echo DevLogHelper::getMemUsageReadable( $log->statement->memory_usage ); ?></td>

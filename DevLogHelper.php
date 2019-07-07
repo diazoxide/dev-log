@@ -209,10 +209,10 @@ class DevLogHelper {
 	 *
 	 * @return string
 	 */
-	public static function arrayToHtmlTableGroup( $array, $title='', $depth = 0 ) {
+	public static function arrayToHtmlTableGroup( $array, $title = '', $depth = 0 ) {
 		$result = '';
 		if ( ! empty( $array ) ) {
-			if($title !== '') {
+			if ( $title !== '' ) {
 				$result = "<tr><th colspan=\"5\"><h$depth>$title</h$depth></th></tr>";
 			}
 			$result .= self::_arrayToHtmlTableRows( $array, $depth );
@@ -253,11 +253,29 @@ class DevLogHelper {
 	 *
 	 * @return float
 	 */
-	public static function getCpuUsage($coreCount = 2,$interval = 1){
-		$rs = sys_getloadavg();
+	public static function getCpuUsage( $coreCount = 2, $interval = 1 ) {
+		$rs       = sys_getloadavg();
 		$interval = $interval >= 1 && 3 <= $interval ? $interval : 1;
-		$load  = $rs[$interval];
-		return round(($load * 100) / $coreCount,2);
+		$load     = $rs[ $interval ];
+
+		return round( ( $load * 100 ) / $coreCount, 2 );
+	}
+
+	/**
+	 * @param $code
+	 *
+	 * @return string
+	 */
+	public static function getHttpStatusBadge( $code ) {
+		$statuses = [
+			404 => 'danger',
+			200 => 'success',
+			300 => 'primary',
+		];
+		$class    = isset( $statuses[ $code ] ) ? $statuses[ $code ] : 'warning';
+
+		return '<span class="badge badge-pill badge-' . $class . '">' . $code . '</span>';
+
 	}
 
 }

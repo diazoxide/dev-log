@@ -62,14 +62,14 @@ class DevLogController {
 			die();
 		}
 
-		if ( preg_match( '/^\/'.DEV_LOG_PATH.'\/view\/(?<name>.*)?$/', $route, $matches ) ) {
+		if ( preg_match( '/^\/' . DEV_LOG_PATH . '\/view\/(?<name>.*)?$/', $route, $matches ) ) {
 
 			$this->actionView( $matches['name'] );
 
 			die();
 		}
 
-		if ( preg_match( '/^\/'.DEV_LOG_PATH.'\/inline\/(?<name>.*)?$/', $route, $matches ) ) {
+		if ( preg_match( '/^\/' . DEV_LOG_PATH . '\/inline\/(?<name>.*)?$/', $route, $matches ) ) {
 
 			$this->actionInline( $matches['name'] );
 
@@ -91,12 +91,15 @@ class DevLogController {
 	}
 
 	/**
+	 * @param $name
+	 *
 	 * @throws Requests_Exception_HTTP_500
 	 */
 	public function actionView( $name ) {
 
 		$this->render( 'view', [
-			'log' => DevLog::getLog( $name )
+			'log'  => DevLog::getLog( $name ),
+			'name' => $name,
 		], false );
 	}
 
@@ -108,7 +111,8 @@ class DevLogController {
 		$this->layout = $this->viewsDirectory . '/layout-clean.php';
 
 		$this->render( 'inline', [
-			'log' => DevLog::getLog( $name )
+			'log' => DevLog::getLog( $name ),
+			'name' => $name,
 		], false );
 	}
 

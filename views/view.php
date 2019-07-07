@@ -3,6 +3,9 @@
     <div class="col-sm-3">
 
 		<?php
+
+		use DevLog\DevLogHelper;
+
 		echo \DevLog\DevLogHelper::getMenu( [
 
 			[ 'label' => 'Messages', 'url' => '?tab=messages' ],
@@ -14,13 +17,31 @@
 			[ 'label' => 'Request', 'url' => '?tab=request' ],
 			[ 'label' => 'Response', 'url' => '?tab=response' ],
 
-		], [ 'items' => [ 'class' => 'list-group-item list-group-item-action' ] ] )
+		], [ 'items' => [ 'class' => 'list-group-item list-group-item-action' ] ] );
+
+
+		$url = DevLogHelper::getActualUrlFromServer( $log->statement->server );
+
 		?>
 
     </div>
 
 
     <div class="col-sm-9">
+
+        <div class="alert alert-success" role="alert">
+
+			<?php echo sprintf(
+				'%1$s: <span class="font-weight-bold">%2$s</span> <a href="%3$s">%3$s</a> at <span class="font-weight-bold">%4$s</span> by <span class="font-weight-bold">%5$s</span>',
+				$name,
+				$log->statement->server->REQUEST_METHOD,
+				$url,
+				date( 'Y-m-d H:i:s', $log->statement->time ),
+				DevLogHelper::getUserIpAddressFromServer( $log->statement->server )
+			); ?>
+
+        </div>
+
 
 		<?php
 		$tab = isset( $_GET['tab'] ) ? $_GET['tab'] : "messages";

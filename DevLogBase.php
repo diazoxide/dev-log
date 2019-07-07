@@ -10,6 +10,8 @@ class DevLogBase {
 
 	public static $scriptName = "DevLog";
 
+	public static $scriptVersion = "1.0.4";
+
 	private static $_log_directory;
 
 	private static $_log_file_path;
@@ -101,6 +103,7 @@ class DevLogBase {
 		self::$_logs['statement']['memory_usage'] = memory_get_usage( true );
 		self::$_logs['statement']['load_time']    = microtime( true ) - self::$_logs['statement']['start_time'];
 		self::$_logs['statement']['trace']        = debug_backtrace();
+		self::$_logs['statement']['status']       = http_response_code();
 	}
 
 	/**
