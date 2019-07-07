@@ -2,7 +2,6 @@
 
     <div class="col-sm-3">
 
-
 		<?php
 		echo \DevLog\DevLogHelper::getMenu( [
 
@@ -13,7 +12,7 @@
 			[ 'label' => 'POST', 'url' => '?tab=post' ],
 			[ 'label' => 'Trace', 'url' => '?tab=trace' ],
 			[ 'label' => 'Request', 'url' => '?tab=request' ],
-			[ 'label' => 'Response', 'url' => '?tab=Response' ],
+			[ 'label' => 'Response', 'url' => '?tab=response' ],
 
 		], [ 'items' => [ 'class' => 'list-group-item list-group-item-action' ] ] )
 		?>

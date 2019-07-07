@@ -19,7 +19,7 @@
     <div class="collapse navbar-collapse" id="collapsibleNavbar">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="#">CPU</a>
+                <a class="nav-link" href="#">CPU: <?php echo \DevLog\DevLogHelper::getCpuUsage(); ?>%</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Memory</a>

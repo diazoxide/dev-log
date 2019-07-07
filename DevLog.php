@@ -8,6 +8,16 @@ namespace DevLog;
 
 final class DevLog extends DevLogBase {
 
+	public static $messageTypes = [
+		'message'   => "table-dark",
+		'info'      => "table-success",
+		'warning'   => "table-warning",
+		'error'     => "table-danger",
+		'note'      => "table-info",
+		'secondary' => "table-secondary",
+		'important' => "table-primary",
+	];
+
 	/**
 	 * @param $message
 	 * @param string $category

@@ -1,1 +1,1 @@
-<pre><?php var_dump( $request ); ?></pre>
+<?php echo DevLog\DevLogHelper::arrayToHtmlTable( $request );

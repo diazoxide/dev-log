@@ -2,6 +2,8 @@
 
 namespace DevLog;
 
+use DateTime;
+
 class DevLogHelper {
 
 
@@ -29,6 +31,7 @@ class DevLogHelper {
 	 */
 	public static function getActualUrlFromServer( $server ) {
 		$server = (array) $server;
+
 		return ( isset( $server['HTTPS'] ) && $server['HTTPS'] === 'on' ? "https" : "http" )
 		       . "://{$server['HTTP_HOST']}{$server['REQUEST_URI']}";
 	}
@@ -55,13 +58,13 @@ class DevLogHelper {
 	 *
 	 * @return string
 	 */
-	public static function getMenu($items, $params){
+	public static function getMenu( $items, $params ) {
 
 		$result = '<div class="list-group">';
 
-		$result.=self::getMenuItems($items,isset($params['items']) ? $params['items'] : [] );
+		$result .= self::getMenuItems( $items, isset( $params['items'] ) ? $params['items'] : [] );
 
-		$result.="</div>";
+		$result .= "</div>";
 
 		return $result;
 
@@ -73,24 +76,24 @@ class DevLogHelper {
 	 *
 	 * @return string
 	 */
-	public static function getMenuItems($items, $params){
+	public static function getMenuItems( $items, $params ) {
 
 		$result = '';
 
-		foreach ($items as $index => $item){
+		foreach ( $items as $index => $item ) {
 			$_params = $params;
-			$url = isset($item['url']) ? $item['url'] : false;
-			if($url){
+			$url     = isset( $item['url'] ) ? $item['url'] : false;
+			if ( $url ) {
 				$_params['href'] = $url;
 			}
 
-			if(self::compareUrls(self::getActualUrlFromServer($_SERVER),$url)){
-				$_params['class'].=" active";
+			if ( self::compareUrls( self::getActualUrlFromServer( $_SERVER ), $url ) ) {
+				$_params['class'] .= " active";
 			}
 
-			$label = isset($item['label']) ? $item['label'] : '';
+			$label = isset( $item['label'] ) ? $item['label'] : '';
 
-			$result.='<a '.self::getHtmlParams($_params).'>'.$label.'</a>';
+			$result .= '<a ' . self::getHtmlParams( $_params ) . '>' . $label . '</a>';
 		}
 
 		return $result;
@@ -102,38 +105,48 @@ class DevLogHelper {
 	 *
 	 * @return string
 	 */
-	public static function getHtmlParams(array $params){
-		return join(' ', array_map(function($key) use ($params)
-		{
-			if(is_bool($params[$key]))
-			{
-				return $params[$key]?$key:'';
+	public static function getHtmlParams( array $params ) {
+		return join( ' ', array_map( function ( $key ) use ( $params ) {
+			if ( is_bool( $params[ $key ] ) ) {
+				return $params[ $key ] ? $key : '';
 			}
-			return $key.'="'.$params[$key].'"';
-		}, array_keys($params)));
+
+			return $key . '="' . $params[ $key ] . '"';
+		}, array_keys( $params ) ) );
 	}
 
 
-	public static function compareUrls($a,$b){
-		$_a = parse_url($a);
+	/**
+	 * @param $a
+	 * @param $b
+	 *
+	 * @return bool
+	 */
+	public static function compareUrls( $a, $b ) {
+		$_a = parse_url( $a );
 
-		$_b = parse_url($b);
+		$_b = parse_url( $b );
 
 		$__a = [
-			'path'=>isset($_a['path']) && isset($_b['path']) ? $_a['path'] : '',
-			'query'=>isset($_a['query']) ? $_a['query'] : ''
+			'path'  => isset( $_a['path'] ) && isset( $_b['path'] ) ? $_a['path'] : '',
+			'query' => isset( $_a['query'] ) ? $_a['query'] : ''
 		];
 
 		$__b = [
-			'path'=>isset($_b['path']) && isset($_a['path']) ? $_b['path'] : '',
-			'query'=>isset($_b['query']) ? $_b['query'] : ''
+			'path'  => isset( $_b['path'] ) && isset( $_a['path'] ) ? $_b['path'] : '',
+			'query' => isset( $_b['query'] ) ? $_b['query'] : ''
 		];
 
 
-		return $__a==$__b;
+		return $__a == $__b;
 	}
 
 
+	/**
+	 * @param $mem_usage
+	 *
+	 * @return string
+	 */
 	public static function getMemUsageReadable( $mem_usage ) {
 
 		if ( $mem_usage < 1024 ) {
@@ -145,8 +158,106 @@ class DevLogHelper {
 		}
 	}
 
+	/**
+	 * @param $string
+	 * @param int $limit
+	 * @param string $end
+	 *
+	 * @return string
+	 */
 	public static function trimString( $string, $limit = 40, $end = '...' ) {
 		return ( strlen( $string ) > $limit ) ? substr( $string, 0, $limit ) . $end : $string;
+	}
+
+
+	/**
+	 * @param $phpInfo
+	 *
+	 * @return string|string[]|null
+	 */
+	public static function phpInfoCleaner( $phpInfo ) {
+
+		$phpInfo = preg_replace( '%^.*<body>(.*)</body>.*$%ms', '$1', $phpInfo );
+		$phpInfo = preg_replace( '%(\<table.*?)(\>)%ms', '$1 class="table table-condensed table-bordered table-striped table-sm table-hover" $2', $phpInfo );
+
+		return $phpInfo;
+
+	}
+
+
+	/**
+	 * @param $array
+	 *
+	 * @param int $depth
+	 *
+	 * @return string
+	 */
+	public static function arrayToHtmlTable( $array, $title = '', $depth = 0 ) {
+		if ( ! empty( $array ) ) {
+			return "<table class=\"table table-condensed table-bordered table-striped table-hover\">" . self::arrayToHtmlTableGroup( $array, $title, $depth ) . "</table>";
+		} else {
+			return "<span>Empty.</span>";
+		}
+	}
+
+
+	/**
+	 * @param $array
+	 *
+	 * @param $title
+	 * @param int $depth
+	 *
+	 * @return string
+	 */
+	public static function arrayToHtmlTableGroup( $array, $title='', $depth = 0 ) {
+		$result = '';
+		if ( ! empty( $array ) ) {
+			if($title !== '') {
+				$result = "<tr><th colspan=\"5\"><h$depth>$title</h$depth></th></tr>";
+			}
+			$result .= self::_arrayToHtmlTableRows( $array, $depth );
+		}
+
+		return $result;
+	}
+
+
+	/**
+	 * @param $array
+	 * @param int $depth
+	 *
+	 * @return string
+	 */
+	private static function _arrayToHtmlTableRows( $array, $depth = 0 ) {
+		$array  = (array) $array;
+		$result = "";
+
+		foreach ( $array as $key => $item ) {
+			if ( is_string( $item ) ) {
+				$result .= "<tr><td>$key</td><td class=\"text-break\">$item</td></tr>";
+			} elseif ( is_array( $item ) || is_object( $item ) ) {
+				if ( ! empty( $item ) ) {
+					$depth ++;
+					$result .= self::arrayToHtmlTableGroup( $item, $key, $depth );
+				}
+			}
+		}
+
+		return $result;
+
+	}
+
+	/**
+	 * @param int $coreCount
+	 * @param int $interval
+	 *
+	 * @return float
+	 */
+	public static function getCpuUsage($coreCount = 2,$interval = 1){
+		$rs = sys_getloadavg();
+		$interval = $interval >= 1 && 3 <= $interval ? $interval : 1;
+		$load  = $rs[$interval];
+		return round(($load * 100) / $coreCount,2);
 	}
 
 }

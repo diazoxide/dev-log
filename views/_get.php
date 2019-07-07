@@ -1,1 +1,3 @@
-<pre><?php var_dump( $get ); ?></pre>
+<?php use DevLog\DevLogHelper;
+
+echo DevLog\DevLogHelper::arrayToHtmlTable( $get ); ?>

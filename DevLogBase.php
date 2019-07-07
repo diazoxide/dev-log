@@ -18,8 +18,11 @@ class DevLogBase {
 
 	private static $_logs_hash;
 
+	public static $messageTypes = [];
+
 	/**
 	 * Register logger
+	 * To initialize logger should run this action
 	 */
 	public static function register() {
 
@@ -32,7 +35,11 @@ class DevLogBase {
 			}
 		}
 
-
+		/*
+		 * Register request shutdown actions
+		 * Then save log file as json
+		 * And register inline debugger
+		 * */
 		register_shutdown_function(
 			function () {
 				/*

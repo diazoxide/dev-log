@@ -33,7 +33,7 @@ use DevLog\DevLogHelper;
             <td><?php echo DevLogHelper::getUserIpAddressFromServer( $log->statement->server ); ?></td>
             <td><?php echo $log->statement->server->REQUEST_METHOD; ?></td>
             <td><?php echo DevLogHelper::isXHRFromServer( $log->statement->server ) ? "Yes" : "No"; ?></td>
-            <td><?php echo $log->statement->time; ?></td>
+            <td><?php echo date('Y-m-d H:i:s', $log->statement->time); ?></td>
             <td><?php echo DevLogHelper::getMemUsageReadable( $log->statement->memory_usage ); ?></td>
             <td><?php echo round( $log->statement->load_time, 5 ); ?></td>
             <td><?php echo count( $log->messages ); ?></td>
