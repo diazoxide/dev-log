@@ -20,7 +20,7 @@
             <td><?php echo $message->type; ?></td>
             <td><?php echo $message->category; ?></td>
             <td>
-                <pre><?php echo $message->message; ?></pre>
+                <pre><?php echo htmlspecialchars( $message->message ); ?></pre>
             </td>
             <td><?php echo $message->time; ?></td>
         </tr>
