@@ -13,14 +13,21 @@ class DevLogHelper {
 	 * @return mixed
 	 */
 	public static function getUserIpAddressFromServer( $server ) {
-		if ( ! empty( $server->{'HTTP_CLIENT_IP'} ) ) {
-			$ip = $server->{'HTTP_CLIENT_IP'};
-		} elseif ( ! empty( $server->{'HTTP_X_FORWARDED_FOR'} ) ) {
-			$ip = $server->{'HTTP_X_FORWARDED_FOR'};
-		} else {
-			$ip = $server->{'REMOTE_ADDR'};
-		}
-
+		$server = (array) $server;
+		if (isset($server['HTTP_CLIENT_IP']))
+			$ip = $server['HTTP_CLIENT_IP'];
+		elseif(isset($server['HTTP_X_FORWARDED_FOR']))
+			$ip = $server['HTTP_X_FORWARDED_FOR'];
+		elseif(isset($server['HTTP_X_FORWARDED']))
+			$ip = $server['HTTP_X_FORWARDED'];
+		elseif(isset($server['HTTP_FORWARDED_FOR']))
+			$ip = $server['HTTP_FORWARDED_FOR'];
+		elseif(isset($server['HTTP_FORWARDED']))
+			$ip = $server['HTTP_FORWARDED'];
+		elseif(isset($server['REMOTE_ADDR']))
+			$ip = $server['REMOTE_ADDR'];
+		else
+			$ip = 'UNKNOWN';
 		return $ip;
 	}
 
