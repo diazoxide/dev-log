@@ -12,9 +12,9 @@ class DevLogBase {
 
 	public static $scriptVersion = "1.0.4";
 
-	private static $_log_directory;
+	private static $_serve;
 
-	private static $_log_file_path;
+	private static $_log_directory;
 
 	private static $_logs;
 
@@ -29,6 +29,7 @@ class DevLogBase {
 	public static function register() {
 
 		include_once "DevLogHelper.php";
+		include_once "DevLogServe.php";
 
 		if ( DEV_LOG_DEBUGGER == true ) {
 			include_once "DevLogController.php";
@@ -52,7 +53,28 @@ class DevLogBase {
 				/*
 				 * Save all logged data
 				 * */
-				file_put_contents( self::getLogFilePath(), json_encode( self::$_logs ) );
+				$serve       = self::getServe();
+				$serve->name = self::getLogHash();
+				$serve->log  = self::$_logs;
+
+				$serve->events = [
+					'beforeSave' => function ( & $log ) {
+						$log['statement']['post']['heloooooo'] = '1111';
+					}
+				];
+
+				$serve->trackers = [
+					"gt_test"=>
+						[
+							'category' => 'hello',
+							'type'     => 'warning',
+							'data'     => function ( $message ) {
+
+							}
+						]
+				];
+
+				$serve->save();
 
 				/**
 				 * If DEV_LOG_INLINE_DEBUGGER is true and not ajax request
@@ -131,6 +153,9 @@ class DevLogBase {
 		return $php_info;
 	}
 
+	/**
+	 * @return string
+	 */
 	public static function getLogDirectory() {
 		if ( ! isset( self::$_log_directory ) ) {
 			self::$_log_directory = dirname( __FILE__ ) . '/logger';
@@ -140,15 +165,16 @@ class DevLogBase {
 	}
 
 	/**
-	 * @return string
+	 * @return DevLogServe
 	 */
-	public static function getLogFilePath() {
-		if ( ! isset( self::$_log_file_path ) ) {
-			self::$_log_file_path = self::getLogDirectory() . "/" . self::getLogHash();
+	public static function getServe() {
+		if ( ! isset( self::$_serve ) ) {
+			self::$_serve = new DevLogServe( self::getLogDirectory() );
 		}
 
-		return self::$_log_file_path;
+		return self::$_serve;
 	}
+
 
 	/**
 	 * @return string
@@ -167,22 +193,12 @@ class DevLogBase {
 	 * @param string $category
 	 */
 	public static function log( $type, $message, $category = "default" ) {
-
-
-		if ( ! file_exists( self::getLogDirectory() ) ) {
-			// create directory/folder uploads.
-			mkdir( self::getLogDirectory(), 0777, true );
-		}
-
-
 		self::$_logs['messages'][] = [
 			'type'     => $type,
 			'message'  => self::_message( $message ),
 			'category' => $category,
 			'time'     => time()
 		];
-
-
 	}
 
 
@@ -206,21 +222,6 @@ class DevLogBase {
 		}
 
 		return $result;
-	}
-
-	/**
-	 * @param $name
-	 *
-	 * @return array|bool|mixed|object
-	 */
-	public static function getLog( $name ) {
-		$path = self::getLogDirectory() . '/' . $name;
-		$file = file_get_contents( $path );
-		if ( $file ) {
-			return json_decode( $file );
-		} else {
-			return false;
-		}
 	}
 
 

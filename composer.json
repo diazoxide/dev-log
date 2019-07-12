@@ -1,0 +1,32 @@
+{
+  "name": "diazoxide/dev-log",
+  "description": "Simple logger",
+  "keywords": ["logger","debugger"],
+  "type": "project",
+  "license": "GPL2",
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=7.0",
+    "adodb/adodb-php": "*"
+  },
+  "require-dev": {
+  },
+  "config": {
+    "process-timeout": 1800,
+    "fxp-asset": {
+      "enabled": false
+    }
+  },
+  "scripts": {
+
+  },
+  "extra": {
+
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ]
+}

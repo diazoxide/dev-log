@@ -15,8 +15,6 @@ class DevLogController {
 	/**
 	 * DevLogController constructor.
 	 *
-	 * @param $ip_addresses
-	 *
 	 * @throws Requests_Exception_HTTP_500
 	 */
 	public function __construct() {
@@ -86,7 +84,7 @@ class DevLogController {
 	 */
 	public function actionDefault() {
 		$this->render( 'list', [
-			'logs' => DevLog::getLogs()
+			'instances'  => DevLog::getServe()->findAll(),
 		], false );
 	}
 
@@ -98,12 +96,14 @@ class DevLogController {
 	public function actionView( $name ) {
 
 		$this->render( 'view', [
-			'log'  => DevLog::getLog( $name ),
+			'instance'  => DevLog::getServe()->findOne( $name ),
 			'name' => $name,
 		], false );
 	}
 
 	/**
+	 * @param $name
+	 *
 	 * @throws Requests_Exception_HTTP_500
 	 */
 	public function actionInline( $name ) {
@@ -111,7 +111,7 @@ class DevLogController {
 		$this->layout = $this->viewsDirectory . '/layout-clean.php';
 
 		$this->render( 'inline', [
-			'log' => DevLog::getLog( $name ),
+			'instance'  => DevLog::getServe()->findOne( $name ),
 			'name' => $name,
 		], false );
 	}

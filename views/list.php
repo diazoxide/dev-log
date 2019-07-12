@@ -20,25 +20,24 @@ use DevLog\DevLogHelper;
     </thead>
     <tbody>
 
-	<?php /** @var Object[] $logs */
-
-	foreach ( $logs as $id => $log ): ?>
+	<?php /** @var \DevLog\DevLogServe[] $instances */
+	foreach ( $instances as $id => $instance ): ?>
 		<?php
-		$url = DevLogHelper::getActualUrlFromServer( $log->statement->server );
+		$url = DevLogHelper::getActualUrlFromServer( $instance->log->statement->server );
 		?>
         <tr>
             <td>
                 <a href="/<?php echo DEV_LOG_PATH; ?>/view/<?php echo $id; ?>"><?php echo DevLogHelper::trimString( $id, '12', '' ); ?></a>
             </td>
             <td><span title="<?php echo $url; ?>"><?php echo DevLogHelper::trimString( $url ); ?></span></td>
-            <td><?php echo DevLogHelper::getUserIpAddressFromServer( $log->statement->server ); ?></td>
-            <td><?php echo $log->statement->server->REQUEST_METHOD; ?></td>
-            <td><?php echo DevLogHelper::getHttpStatusBadge($log->statement->status); ?></td>
-            <td><?php echo DevLogHelper::isXHRFromServer( $log->statement->server ) ? "Yes" : "No"; ?></td>
-            <td><?php echo date('Y-m-d H:i:s', $log->statement->time); ?></td>
-            <td><?php echo DevLogHelper::getMemUsageReadable( $log->statement->memory_usage ); ?></td>
-            <td><?php echo round( $log->statement->load_time, 5 ); ?></td>
-            <td><?php echo count( $log->messages ); ?></td>
+            <td><?php echo DevLogHelper::getUserIpAddressFromServer( $instance->log->statement->server ); ?></td>
+            <td><?php echo $instance->log->statement->server->REQUEST_METHOD; ?></td>
+            <td><?php echo DevLogHelper::getHttpStatusBadge($instance->log->statement->status); ?></td>
+            <td><?php echo DevLogHelper::isXHRFromServer( $instance->log->statement->server ) ? "Yes" : "No"; ?></td>
+            <td><?php echo date('Y-m-d H:i:s', $instance->log->statement->time); ?></td>
+            <td><?php echo DevLogHelper::getMemUsageReadable( $instance->log->statement->memory_usage ); ?></td>
+            <td><?php echo round( $instance->log->statement->load_time, 5 ); ?></td>
+            <td><?php echo count( $instance->log->messages ); ?></td>
         </tr>
 	<?php endforeach; ?>
     </tbody>

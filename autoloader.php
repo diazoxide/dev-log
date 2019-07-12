@@ -24,8 +24,23 @@ if ( ! defined( "DEV_LOG_INLINE_DEBUGGER" ) ) {
 	define( "DEV_LOG_INLINE_DEBUGGER", true );
 }
 
+if ( ! defined( "DEV_LOG_SERVE_METHOD" ) ) {
+	define( "DEV_LOG_SERVE_METHOD", 'file' );
+}
+
 if ( DEV_LOG != false ) {
+//	include_once "vendor/autoload.php";
+//	$db = adoNewConnection($driver); # eg. 'mysqli' or 'oci8'
+//	$db->debug = true;
+//	$db->connect('localhost', 'swanson', 'Novem9bit', 'swanson');
+//	$rs = $db->execute('select * from xIQYyVTl_users');
+//	print "<pre>";
+//	print_r($rs->getRows());
+//	print "</pre>";
+//
+//	die();
 	include_once "DevLogBase.php";
 	include_once "DevLog.php";
 	DevLog::register();
 }
+//die();
