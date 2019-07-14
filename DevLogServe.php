@@ -18,8 +18,118 @@ class DevLogServe {
 
 	public $trackers = [];
 
-	public function __construct( $path ) {
+	private $trackersServe = null;
+
+	/**
+	 * DevLogServe constructor.
+	 *
+	 * @param $path
+	 * @param array $trackers
+	 * @param DevLogServe $trackersServe
+	 */
+	public function __construct( $path, $trackers = [], $trackersServe = null ) {
 		$this->path = $path;
+		$this->trackersServe = $trackersServe;
+		$this->setTrackers( $trackers );
+	}
+
+
+	/**
+	 * Setting tracker functions
+	 * @param $trackers
+	 */
+	private function setTrackers( $trackers ) {
+		/*
+		 * Adding event before save
+		 * To track a data
+		 * */
+		/**
+		 * @param $log
+		 * @param $status
+		 */
+		$this->events['beforeSave'][] = function ( & $log, & $status ) use ( $trackers ) {
+
+			/*
+			 * Fetching trackers
+			 * */
+			foreach ( $trackers as $key => $tracker ) {
+				/*
+				 * If is set criteria
+				 * */
+				$criteria = isset( $tracker['criteria'] ) ? $tracker['criteria'] : [];
+
+				/*
+				 * Final status of criteria
+				 * */
+				$condition_status = true;
+
+				/*
+				 * Fetching criteria and checking each condition
+				 * */
+				foreach ( $criteria as $condition ) {
+
+					/*
+					 * If condition first element is callable function
+					 * */
+					if ( is_callable( $condition[0] ) ) {
+
+						/*
+						 * Type of condition (and | or)
+						 * */
+						$condition_type = isset( $condition[1] ) ? strtolower( $condition[1] ) : 'and';
+						if ( $condition_type == 'and' ) {
+							$condition_status = $condition_status && call_user_func_array( $condition[0], [
+									& $log,
+									& $status
+								] );
+						} elseif ( $condition_type == 'or' ) {
+							$condition_status = $condition_status || call_user_func_array( $condition[0], [
+									& $log,
+									& $status
+								] );
+						}
+					}
+				}
+
+				/*
+				 * If criteria condition checking is successful
+				 * And is true
+				 * */
+				if($condition_status == true){
+					$data = isset( $tracker['data'] ) ? $tracker['data'] : [];
+
+					if(is_callable($data)){
+						$data = call_user_func_array( $data, [
+							$key,
+							$this->trackersServe->findOne($key)->log,
+							$log,
+						] );
+					}
+
+					if(!isset($data['instances'])){
+						$data['instances'] = [];
+					}
+					$data['instances'][] = $log->name;
+
+					if($this->trackersServe !== null){
+						$this->trackersServe->log = $data;
+						$this->trackersServe->name = $key;
+						$this->trackersServe->save();
+					}
+				}
+
+			}
+		};
+
+
+	}
+
+	private function runEvent( $name, & $status ) {
+		if ( isset( $this->events[ $name ] ) ) {
+			foreach ( $this->events[ $name ] as $event ) {
+				call_user_func_array( $event, [ &$this, &$status ] );
+			}
+		}
 	}
 
 	/**
@@ -28,15 +138,11 @@ class DevLogServe {
 	public function save() {
 		$status = true;
 
-		if ( isset( $this->events['beforeSave'] ) ) {
-			call_user_func_array( $this->events['beforeSave'], [ & $this->log, &$status ] );
-		}
+		$this->runEvent( 'beforeSave', $status );
 
 		$status = $this->saveOnFile();
 
-		if ( isset( $this->events['afterSave'] ) ) {
-			call_user_func_array( $this->events['afterSave'], [ &$this->log, &$status ] );
-		}
+		$this->runEvent( 'afterSave', $status );
 
 		return $status;
 	}
@@ -78,7 +184,7 @@ class DevLogServe {
 		$path       = $this->getFilePath();
 		$file       = file_get_contents( $path );
 		if ( $file ) {
-			$this->log = json_decode( $file );
+			$this->log = json_decode( $file,true );
 
 			return $this;
 		} else {

@@ -15,14 +15,14 @@
 	use DevLog\DevLog;
 
 	foreach ( $messages as $id => $message ): ?>
-        <tr class="<?php echo isset( DevLog::$messageTypes[ $message->type ] ) ? DevLog::$messageTypes[ $message->type ] : 'table-primary'; ?>">
+        <tr class="<?php echo isset( DevLog::$messageTypes[ $message['type'] ] ) ? DevLog::$messageTypes[ $message['type'] ] : 'table-primary'; ?>">
             <td><?php echo $id + 1; ?></td>
-            <td><?php echo $message->type; ?></td>
-            <td><?php echo $message->category; ?></td>
+            <td><?php echo $message['type']; ?></td>
+            <td><?php echo $message['category']; ?></td>
             <td>
-                <pre><?php echo htmlspecialchars( $message->message ); ?></pre>
+                <pre><?php echo \DevLog\DevLogHelper::dump($message['message'],'export'); ?></pre>
             </td>
-            <td><?php echo $message->time; ?></td>
+            <td><?php echo $message['time']; ?></td>
         </tr>
 
 	<?php endforeach; ?>

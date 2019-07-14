@@ -19,10 +19,6 @@ class DevLogController {
 	 */
 	public function __construct() {
 
-		if ( ! $this->ipAddressValidation( DEV_LOG_IP_ADDRESSES ) ) {
-			return true;
-		}
-
 		if ( $this->viewsDirectory == null ) {
 			$this->viewsDirectory = dirname( __FILE__ ) . '/views';
 		}
@@ -37,13 +33,7 @@ class DevLogController {
 		return $this->registerRoutes();
 	}
 
-	private function ipAddressValidation( $ip_addresses ) {
-		if ( in_array( '*', $ip_addresses ) || in_array( DevLogHelper::getUserIpAddressFromServer( $_SERVER ), $ip_addresses ) ) {
-			return true;
-		}
 
-		return false;
-	}
 
 	/**
 	 * @return bool
@@ -74,6 +64,20 @@ class DevLogController {
 			die();
 		}
 
+		if ( trim( $route, '/' ) == DEV_LOG_PATH.'/track' ) {
+
+			$this->actionTrack();
+
+			die();
+		}
+
+		if ( preg_match( '/^\/' . DEV_LOG_PATH . '\/track\/view\/(?<name>.*)?$/', $route, $matches ) ) {
+
+			$this->actionTrackView( $matches['name'] );
+
+			die();
+		}
+
 		return true;
 	}
 
@@ -84,7 +88,30 @@ class DevLogController {
 	 */
 	public function actionDefault() {
 		$this->render( 'list', [
-			'instances'  => DevLog::getServe()->findAll(),
+			'instances'  => DevLog::getLogServe()->findAll(),
+		], false );
+	}
+
+	/**
+	 * Action
+	 * @throws Requests_Exception_HTTP_500
+	 */
+	public function actionTrack() {
+		$this->render( 'track/list', [
+			'instances'  => DevLog::getTrackServe()->findAll(),
+		], false );
+	}
+
+	/**
+	 * @param $name
+	 *
+	 * @throws Requests_Exception_HTTP_500
+	 */
+	public function actionTrackView( $name ) {
+
+		$this->render( 'track/view', [
+			'instance'  => DevLog::getTrackServe()->findOne( $name ),
+			'name' => $name,
 		], false );
 	}
 
@@ -96,7 +123,7 @@ class DevLogController {
 	public function actionView( $name ) {
 
 		$this->render( 'view', [
-			'instance'  => DevLog::getServe()->findOne( $name ),
+			'instance'  => DevLog::getLogServe()->findOne( $name ),
 			'name' => $name,
 		], false );
 	}
@@ -111,7 +138,7 @@ class DevLogController {
 		$this->layout = $this->viewsDirectory . '/layout-clean.php';
 
 		$this->render( 'inline', [
-			'instance'  => DevLog::getServe()->findOne( $name ),
+			'instance'  => DevLog::getLogServe()->findOne( $name ),
 			'name' => $name,
 		], false );
 	}

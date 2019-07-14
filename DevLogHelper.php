@@ -37,8 +37,6 @@ class DevLogHelper {
 	 * @return string
 	 */
 	public static function getActualUrlFromServer( $server ) {
-		$server = (array) $server;
-
 		return ( isset( $server['HTTPS'] ) && $server['HTTPS'] === 'on' ? "https" : "http" )
 		       . "://{$server['HTTP_HOST']}{$server['REQUEST_URI']}";
 	}
@@ -49,7 +47,6 @@ class DevLogHelper {
 	 * @return bool
 	 */
 	public static function isXHRFromServer( $server ) {
-		$server = (array) $server;
 		if ( isset( $server['HTTP_X_REQUESTED_WITH'] ) && strtolower( $server['HTTP_X_REQUESTED_WITH'] ) === 'xmlhttprequest' ) {
 			return true;
 		}
@@ -283,6 +280,37 @@ class DevLogHelper {
 
 		return '<span class="badge badge-pill badge-' . $class . '">' . $code . '</span>';
 
+	}
+
+	public static function ipAddressValidation( $ip_addresses ) {
+		if ( in_array( '*', $ip_addresses ) || in_array( DevLogHelper::getUserIpAddressFromServer( $_SERVER ), $ip_addresses ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param $message
+	 *
+	 * @param string $method
+	 *
+	 * @return false|string
+	 */
+	public static function dump( $message, $method = 'dump') {
+		if ( ! is_string( $message ) ) {
+			if($method == 'dump') {
+				ob_start();
+				var_dump( $message );
+				$message = ob_get_clean();
+			} elseif($method == 'export'){
+				$message = var_export($message,true);
+			} elseif($method == 'table'){
+				$message = self::arrayToHtmlTable($message);
+			}
+		}
+
+		return $message;
 	}
 
 }

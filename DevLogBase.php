@@ -12,7 +12,7 @@ class DevLogBase {
 
 	public static $scriptVersion = "1.0.4";
 
-	private static $_serve;
+	private static $_log_serve;
 
 	private static $_log_directory;
 
@@ -20,7 +20,13 @@ class DevLogBase {
 
 	private static $_logs_hash;
 
+	private static $_track_serve;
+
+	private static $_track_directory;
+
 	public static $messageTypes = [];
+
+	public static $logTrackers = [];
 
 	/**
 	 * Register logger
@@ -33,7 +39,7 @@ class DevLogBase {
 
 		if ( DEV_LOG_DEBUGGER == true ) {
 			include_once "DevLogController.php";
-			if ( ! new DevLogController() ) {
+			if ( ! DevLogHelper::ipAddressValidation( DEV_LOG_IP_ADDRESSES ) || ! new DevLogController() ) {
 				return;
 			}
 		}
@@ -53,26 +59,16 @@ class DevLogBase {
 				/*
 				 * Save all logged data
 				 * */
-				$serve       = self::getServe();
+				$serve       = self::getLogServe();
 				$serve->name = self::getLogHash();
 				$serve->log  = self::$_logs;
 
-				$serve->events = [
-					'beforeSave' => function ( & $log ) {
-						$log['statement']['post']['heloooooo'] = '1111';
-					}
-				];
-
-				$serve->trackers = [
-					"gt_test"=>
-						[
-							'category' => 'hello',
-							'type'     => 'warning',
-							'data'     => function ( $message ) {
-
-							}
-						]
-				];
+//
+//				$serve->events['beforeSave'][] = [
+//					function ( & $log, & $status ) {
+//						$log['statement']['post']['heloooooo'] = '1111';
+//					}
+//				];
 
 				$serve->save();
 
@@ -128,20 +124,7 @@ class DevLogBase {
 		self::$_logs['statement']['status']       = http_response_code();
 	}
 
-	/**
-	 * @param $message
-	 *
-	 * @return false|string
-	 */
-	private static function _message( $message ) {
-		if ( ! is_string( $message ) ) {
-			ob_start();
-			var_dump( $message );
-			$message = ob_get_clean();
-		}
 
-		return $message;
-	}
 
 	private static function getPhpInfo() {
 
@@ -164,15 +147,44 @@ class DevLogBase {
 		return self::$_log_directory;
 	}
 
+
+	/**
+	 * @return string
+	 */
+	public static function getTrackDirectory() {
+		if ( ! isset( self::$_track_directory ) ) {
+			self::$_track_directory = dirname( __FILE__ ) . '/track';
+		}
+
+		return self::$_track_directory;
+	}
+
+	public static function getTrackers(){
+		return [];
+	}
+
 	/**
 	 * @return DevLogServe
 	 */
-	public static function getServe() {
-		if ( ! isset( self::$_serve ) ) {
-			self::$_serve = new DevLogServe( self::getLogDirectory() );
+	public static function getLogServe() {
+
+		if ( ! isset( self::$_log_serve ) ) {
+			self::$_log_serve = new DevLogServe(
+				self::getLogDirectory(),
+				static::getTrackers(),
+				self::getTrackServe()
+			);
 		}
 
-		return self::$_serve;
+		return self::$_log_serve;
+	}
+
+	public static function getTrackServe() {
+		if ( ! isset( self::$_track_serve ) ) {
+			self::$_track_serve = new DevLogServe( self::getTrackDirectory() );
+		}
+
+		return self::$_track_serve;
 	}
 
 
@@ -195,7 +207,7 @@ class DevLogBase {
 	public static function log( $type, $message, $category = "default" ) {
 		self::$_logs['messages'][] = [
 			'type'     => $type,
-			'message'  => self::_message( $message ),
+			'message'  => $message,
 			'category' => $category,
 			'time'     => time()
 		];

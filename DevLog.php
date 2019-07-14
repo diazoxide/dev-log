@@ -106,4 +106,14 @@ final class DevLog extends DevLogBase {
 	}
 
 
+	/**
+	 * @return array|void
+	 */
+	public static function getTrackers() {
+		if ( ! defined( "DEV_LOG_TRACKERS" ) ) {
+			return parent::getTrackers();
+		}
+
+		return array_merge( parent::getTrackers(), include_once( DEV_LOG_TRACKERS ) );
+	}
 }

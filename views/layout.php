@@ -22,7 +22,7 @@
                 <a class="nav-link" href="#">CPU: <?php echo \DevLog\DevLogHelper::getCpuUsage(); ?>%</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Memory</a>
+                <a class="nav-link" href="/<?php echo DEV_LOG_PATH; ?>/track">Track</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Time</a>
