@@ -6,6 +6,8 @@ namespace DevLog;
  * Simple and Powerful debugging tool
  * */
 
+use Dompdf\Exception;
+
 class DevLogServe {
 
 	public $log = [];
@@ -18,6 +20,9 @@ class DevLogServe {
 
 	public $trackers = [];
 
+	/*
+	 * Private properties
+	 * */
 	private $trackersServe = null;
 
 	/**
@@ -28,7 +33,7 @@ class DevLogServe {
 	 * @param DevLogServe $trackersServe
 	 */
 	public function __construct( $path, $trackers = [], $trackersServe = null ) {
-		$this->path = $path;
+		$this->path          = $path;
 		$this->trackersServe = $trackersServe;
 		$this->setTrackers( $trackers );
 	}
@@ -36,6 +41,7 @@ class DevLogServe {
 
 	/**
 	 * Setting tracker functions
+	 *
 	 * @param $trackers
 	 */
 	private function setTrackers( $trackers ) {
@@ -95,27 +101,55 @@ class DevLogServe {
 				 * If criteria condition checking is successful
 				 * And is true
 				 * */
-				if($condition_status == true){
-					$data = isset( $tracker['data'] ) ? $tracker['data'] : [];
+				if ( $condition_status == true ) {
+					$to_serve = [];
 
-					if(is_callable($data)){
-						$data = call_user_func_array( $data, [
-							$key,
-							$this->trackersServe->findOne($key)->log,
-							$log,
-						] );
+					$group_by = isset( $tracker['group_by'] ) ? $tracker['group_by'] : [ 'default' => [] ];
+
+					$data = isset( $tracker['data'] ) ? $tracker['data'] : false;
+
+					foreach ( $group_by as $group ) {
+						$to_serve[ $group ] = isset( $to_serve[ $group ] ) ? $to_serve[ $group ] : [];
+
+						/*
+						 * If data is function then call this function
+						 * and returned data use for serving
+						 * */
+						if ( is_callable( $data ) ) {
+							$old_tracker_instance = $this->trackersServe->findOne( $key )->log;
+							$to_serve   = call_user_func_array( $data, [
+								$key,
+								$group,
+								isset( $old_tracker_instance ) ? $old_tracker_instance : [],
+								$log,
+							] );
+						}
+
+						if(isset($tracker['serve_instances'])){
+							if($tracker['serve_instances'] == true){
+								/*
+								 * Adding parent log instance hash
+								 * */
+								if ( ! isset( $to_serve[ $group ]['instances'] ) ) {
+									$to_serve[ $group ]['instances'] = [];
+								}
+								$to_serve[ $group ]['instances'][] = $log->name;
+							} else{
+								unset($to_serve[ $group ]['instances']);
+							}
+						}
+
+						/*
+						 * If Tracker serve exists
+						 * */
+						if ( $this->trackersServe !== null ) {
+							$this->trackersServe->log  = $to_serve;
+							$this->trackersServe->name = $key;
+							$this->trackersServe->save();
+						}
 					}
 
-					if(!isset($data['instances'])){
-						$data['instances'] = [];
-					}
-					$data['instances'][] = $log->name;
 
-					if($this->trackersServe !== null){
-						$this->trackersServe->log = $data;
-						$this->trackersServe->name = $key;
-						$this->trackersServe->save();
-					}
 				}
 
 			}
@@ -124,6 +158,11 @@ class DevLogServe {
 
 	}
 
+
+	/**
+	 * @param $name
+	 * @param $status
+	 */
 	private function runEvent( $name, & $status ) {
 		if ( isset( $this->events[ $name ] ) ) {
 			foreach ( $this->events[ $name ] as $event ) {
@@ -182,9 +221,14 @@ class DevLogServe {
 	public function findOne( $name ) {
 		$this->name = $name;
 		$path       = $this->getFilePath();
-		$file       = file_get_contents( $path );
+
+		try {
+			$file = file_get_contents( $path );
+		} catch ( Exception $exception ) {
+			$file = false;
+		}
 		if ( $file ) {
-			$this->log = json_decode( $file,true );
+			$this->log = json_decode( $file, true );
 
 			return $this;
 		} else {

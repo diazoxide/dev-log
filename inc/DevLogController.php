@@ -20,7 +20,7 @@ class DevLogController {
 	public function __construct() {
 
 		if ( $this->viewsDirectory == null ) {
-			$this->viewsDirectory = dirname( __FILE__ ) . '/views';
+			$this->viewsDirectory = dirname( __FILE__ ) . '/../views';
 		}
 
 		if ( $this->layout == null ) {

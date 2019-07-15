@@ -192,6 +192,7 @@ class DevLogHelper {
 	/**
 	 * @param $array
 	 *
+	 * @param string $title
 	 * @param int $depth
 	 *
 	 * @return string
@@ -237,7 +238,7 @@ class DevLogHelper {
 		$result = "";
 
 		foreach ( $array as $key => $item ) {
-			if ( is_string( $item ) ) {
+			if ( is_string( $item ) || is_numeric($item) ) {
 				$result .= "<tr><td>$key</td><td class=\"text-break\">$item</td></tr>";
 			} elseif ( is_array( $item ) || is_object( $item ) ) {
 				if ( ! empty( $item ) ) {

@@ -28,6 +28,8 @@ class DevLogBase {
 
 	public static $logTrackers = [];
 
+	public static $hash_length = 12;
+
 	/**
 	 * Register logger
 	 * To initialize logger should run this action
@@ -125,7 +127,6 @@ class DevLogBase {
 	}
 
 
-
 	private static function getPhpInfo() {
 
 		ob_start();
@@ -141,7 +142,7 @@ class DevLogBase {
 	 */
 	public static function getLogDirectory() {
 		if ( ! isset( self::$_log_directory ) ) {
-			self::$_log_directory = dirname( __FILE__ ) . '/logger';
+			self::$_log_directory = dirname( __FILE__ ) . '/../logger';
 		}
 
 		return self::$_log_directory;
@@ -153,13 +154,13 @@ class DevLogBase {
 	 */
 	public static function getTrackDirectory() {
 		if ( ! isset( self::$_track_directory ) ) {
-			self::$_track_directory = dirname( __FILE__ ) . '/track';
+			self::$_track_directory = dirname( __FILE__ ) . '/../track';
 		}
 
 		return self::$_track_directory;
 	}
 
-	public static function getTrackers(){
+	public static function getTrackers() {
 		return [];
 	}
 
@@ -193,7 +194,7 @@ class DevLogBase {
 	 */
 	public static function getLogHash() {
 		if ( ! isset( self::$_logs_hash ) ) {
-			self::$_logs_hash = md5( microtime() . rand() );
+			self::$_logs_hash = substr( md5( uniqid( rand(), true ) ), 0, static::$hash_length );
 		}
 
 		return self::$_logs_hash;

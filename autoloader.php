@@ -30,8 +30,8 @@ if ( ! defined( "DEV_LOG_SERVE_METHOD" ) ) {
 
 
 if ( DEV_LOG != false ) {
-	include_once "DevLogBase.php";
-	include_once "DevLog.php";
+	include_once "inc/DevLogBase.php";
+	include_once "inc/DevLog.php";
 	DevLog::register();
 }
 
